@@ -1,0 +1,80 @@
+{
+  "private": true,
+  "name": "woc-integration-layer",
+  "description": "This includes integration layer for googlefit and fitbit",
+  "version": "1.0.0",
+  "contributors": [
+    {
+      "name": "Somnath Bhattacharya",
+      "email": "somu9009@gmail.com"
+    },
+    {
+      "name": "Suhas Bharadwaj",
+      "email": "suhaspbharadwaj@gmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/o2Labs/serverless-express-typescript"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=4.3.2"
+  },
+  "scripts": {
+    "format": "prettier --write --config .prettierrc.yaml '**/*.ts'",
+    "clean": "rm -f src/*.js",
+    "build": "yarn clean && tsc",
+    "package": "yarn build && serverless package",
+    "deploy": "yarn build && eval \"`aws-auth-helper` serverless deploy\""
+  },
+  "dependencies": {
+    "@types/aws-serverless-express": "^3.0.1",
+    "@types/compression": "^0.0.35",
+    "@types/cors": "^2.8.3",
+    "@types/uuid": "^3.4.4",
+    "aws-serverless-express": "^3.1.0",
+    "axios": "^0.18.0",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.1",
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "googleapis": "^39.2.0",
+    "moment": "^2.24.0",
+    "pug": "^2.0.3",
+    "serverless-http": "^2.0.1",
+    "serverless-offline": "^4.9.4",
+    "source-map-support": "^0.5.3",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/faker": "^4.1.2",
+    "@types/jest": "^24.0.11",
+    "@types/node": "^8.5.1",
+    "@types/supertest": "^2.0.4",
+    "aws-auth-helper": "^1.0.0",
+    "faker": "^4.1.0",
+    "jest": "^24.7.1",
+    "prettier": "^1.9.2",
+    "serverless": "^1.41.1",
+    "serverless-dynamodb-local": "^0.2.37",
+    "supertest": "^4.0.2",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.4.5"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": ".*\\.test.(ts|tsx|js)",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  }
+}

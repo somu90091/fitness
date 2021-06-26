@@ -1,0 +1,236 @@
+service: windOfChange-sls-ts
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: ${opt:stage, 'dev'}
+  region: eu-west-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DescribeStream
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:ListStreams
+        - dynamodb:Scan
+      Resource: arn:aws:dynamodb:*:*:table/*
+    
+package:
+  exclude:
+    - "**/*.ts"
+    - "test/**"
+    - "scripts/**"
+    - ".vscode/**"
+    - "*"
+
+plugins:
+  - serverless-offline
+  - serverless-dynamodb-local
+
+functions:
+  http:
+    handler: src/handlers/googleLambda.handler
+    timeout: 10
+    events:
+      - http: ANY /googlefit
+      - http: ANY /googlefit/{proxy+}
+
+  fitbit:
+    handler: src/handlers/fitbitLambda.http
+    timeout: 10
+    events:
+      - http: ANY /fitbit
+      - http: ANY /fitbit/{proxy+}    
+#     ## Uncomment below here to use the private VPC setup
+#     vpc:
+#       subnetIds:
+#         - 'Ref': 'PrivateSubnet1'
+#         - 'Ref': 'PrivateSubnet2'
+#         - 'Ref': 'PrivateSubnet3'
+      
+
+resources:
+  Resources:
+    Config:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: config
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST 
+    
+    Steps:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: googlefitsteps
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    
+    Calories:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: googlefitcal
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST    
+        
+    FitbitSteps:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: fitbitsteps
+        AttributeDefinitions:
+          - AttributeName: userTime
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userTime
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST   
+
+    FitbitCalories:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: fitbitcalories
+        AttributeDefinitions:
+          - AttributeName: userTime
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userTime
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST    
+        
+    FitbitConfig:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: fitbitconfig
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST    
+#     ###### VPC & Subnets ######
+#     VPC:
+#       Type: 'AWS::EC2::VPC'
+#       Properties:
+#         CidrBlock: 10.0.0.0/16
+#         EnableDnsHostnames: true
+
+#     PrivateSubnet1:
+#       Type: AWS::EC2::Subnet
+#       Properties:
+#         AvailabilityZone: 'eu-west-1a'
+#         Tags:
+#           - Key: Name
+#             Value:
+#               Fn::Join:
+#                 - '-'
+#                 - [{Ref: 'AWS::StackName'}, 'private', 'eu-west-1a']
+#         VpcId:
+#           Ref: VPC
+#         CidrBlock: 10.0.0.0/24
+
+#     PrivateSubnet2:
+#       Type: AWS::EC2::Subnet
+#       Properties:
+#         AvailabilityZone: 'eu-west-1b'
+#         Tags:
+#           - Key: Name
+#             Value:
+#               Fn::Join:
+#                 - '-'
+#                 - [{Ref: 'AWS::StackName'}, 'private', 'eu-west-1b']
+#         VpcId:
+#           Ref: VPC
+#         CidrBlock: 10.0.1.0/24
+
+#     PrivateSubnet3:
+#       Type: AWS::EC2::Subnet
+#       Properties:
+#         AvailabilityZone: 'eu-west-1c'
+#         Tags:
+#           - Key: Name
+#             Value:
+#               Fn::Join:
+#                 - '-'
+#                 - [{Ref: 'AWS::StackName'}, 'private', 'eu-west-1c']
+#         VpcId:
+#           Ref: VPC
+#         CidrBlock: 10.0.2.0/24
+
+#     ###### Private Routing ######
+#     PrivateRouteTable1:
+#       Type: AWS::EC2::RouteTable
+#       Properties:
+#         Tags:
+#           - Key: Name
+#             Value:
+#               Fn::Join:
+#                 - '-'
+#                 - [{Ref: 'AWS::StackName'}, 'private-1']
+#         VpcId:
+#           Ref: VPC
+
+#     PrivateSubnetAssoc1:
+#       Type: AWS::EC2::SubnetRouteTableAssociation
+#       Properties:
+#         RouteTableId:
+#           Ref: PrivateRouteTable1
+#         SubnetId:
+#           Ref: PrivateSubnet1
+
+#     PrivateRouteTable2:
+#       Type: AWS::EC2::RouteTable
+#       Properties:
+#         Tags:
+#           - Key: Name
+#             Value:
+#               Fn::Join:
+#                 - '-'
+#                 - [{Ref: 'AWS::StackName'}, 'private-2']
+#         VpcId:
+#           Ref: VPC
+
+#     PrivateSubnetAssoc2:
+#       Type: AWS::EC2::SubnetRouteTableAssociation
+#       Properties:
+#         RouteTableId:
+#           Ref: PrivateRouteTable2
+#         SubnetId:
+#           Ref: PrivateSubnet2
+
+#     PrivateRouteTable3:
+#       Type: AWS::EC2::RouteTable
+#       Properties:
+#         Tags:
+#           - Key: Name
+#             Value:
+#               Fn::Join:
+#                 - '-'
+#                 - [{Ref: 'AWS::StackName'}, 'private-3']
+#         VpcId:
+#           Ref: VPC
+
+#     PrivateSubnetAssoc3:
+#       Type: AWS::EC2::SubnetRouteTableAssociation
+#       Properties:
+#         RouteTableId:
+#           Ref: PrivateRouteTable3
+#         SubnetId:
+#           Ref: PrivateSubnet3

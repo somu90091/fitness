@@ -1,0 +1,24 @@
+{
+  "type": "mysql",
+  "host": "99.80.41.245",
+  "port": 3306,
+  "username": "root",
+  "password": "woc@2019$",
+  "database": "wocapp",
+  "synchronize": true,
+  "logging": true,
+  "entities": [
+    "dist/entity/**/*.js"
+  ],
+  "migrations": [
+    "dist/migration/**/*.js"
+  ],
+  "subscribers": [
+    "dist/subscriber/**/*.js"
+  ],
+  "cli": {
+    "entitiesDir": "src/entity",
+    "migrationsDir": "src/migration",
+    "subscribersDir": "src/subscriber"
+  }
+}
